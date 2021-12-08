@@ -43,10 +43,12 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
     }
 
     function isReadable(store: any): boolean {
-        return ('subscribe' in store);
+        if (!store) return false;
+        return (typeof (store) === 'object') && ('subscribe' in store);
     }
 
     function isWritable(store: any): boolean {
+        if (!store) return false;
         return isReadable(store) && ('set' in store) && ('update' in store);
     }
 

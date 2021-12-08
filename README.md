@@ -35,14 +35,22 @@ Optionally reverse the chain when data is read from a storage location.
 
 ## Quick Example
     <script>
-    import { chain } from 'svelte-chainstore'
-    const user = chain((v) => v.name?.toUpper())
-        .sync()
-        .store();
+	import { chain } from 'svelte-chainstore';
+
+	let changeCounter = 0;
+	const name = chain((v) => v.toUpperCase())
+		.chain((v) => {
+			changeCounter++;
+			return v;
+		})
+		.sync()
+		.store('JOHN');
     </script>
 
-    <!-- chain ensures name value is trimmed -->
-    <input bind:value={$user.name} />
+    <!-- chain ensures name value is always uppercase and also counts the changes made -->
+    <input bind:value={$name} />
+    <br />This value changed {changeCounter} times.
+
 
 ## Credits
 Inspired by [Dean Fogarty](https://df.id.au/)'s [Svelte Summit Fall 2021 presentation](https://www.youtube.com/watch?v=1Df-9EKvZr0&t=6186s)
