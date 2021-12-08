@@ -1,6 +1,6 @@
 {
   "name": "svelte-chainstore",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Perform a chain of operations in response to store changes.",
   "scripts": {
     "dev": "svelte-kit dev",
@@ -29,5 +29,22 @@
     "tslib": "^2.3.1",
     "typescript": "^4.4.3"
   },
-  "type": "module"
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/louislouw/svelte-chainstore.git"
+  },
+  "keywords": [
+    "svelte",
+    "chainstore",
+    "chainlink",
+    "dirtystore",
+    "autosave"
+  ],
+  "author": "Louis Louw",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/louislouw/svelte-chainstore/issues"
+  },
+  "homepage": "https://github.com/louislouw/svelte-chainstore#readme"
 }
