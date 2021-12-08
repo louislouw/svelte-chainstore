@@ -1,6 +1,6 @@
 {
   "name": "svelte-chainstore",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Perform a chain of operations in response to store changes.",
   "scripts": {
     "dev": "svelte-kit dev",

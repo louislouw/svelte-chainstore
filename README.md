@@ -1,6 +1,6 @@
 # svelte-chainstore
 
-Perform a chain of operations on data represented by a svelte store as the data changes.
+Perform a chain of operations in response to store changes.
 
 Optionally apply changes back to the store.
 
