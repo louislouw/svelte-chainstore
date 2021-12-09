@@ -6,7 +6,7 @@ type AutoSaveOptions = {
     preventClose?: boolean;
 }
 
-export const autoSave = <T>(saveFunc: CallableFunction, dirtyStore: DirtyStore, valueStore: Readable<T>, opts: AutoSaveOptions): Unsubscriber => {
+export const autoSave = <T>(saveFunc: CallableFunction, dirtyStore: DirtyStore, valueStore: Readable<T>, opts?: AutoSaveOptions): Unsubscriber => {
     let dirty = false;
     let value: any;
     let timeoutId: NodeJS.Timeout;
