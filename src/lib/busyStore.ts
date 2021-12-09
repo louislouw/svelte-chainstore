@@ -1,7 +1,7 @@
 import type { Readable } from 'svelte/store';
 import { writable } from "svelte/store";
 
-interface BusyReadable<T extends boolean> extends Readable<T> {
+export interface BusyReadable<T extends boolean> extends Readable<T> {
     run(this: void, callback: CallableFunction): Promise<any> | any;
 }
 
@@ -23,10 +23,10 @@ export const busyStore = (startBusy: boolean = false): BusyReadable<boolean> => 
     const run = (callback: CallableFunction): Promise<any> | any => {
         try {
             enter();
-            const res = callback();
+            let res = callback();
             if (res instanceof Promise) {
                 enter();
-                res.finally(leave);
+                res = res.finally(leave);
             }
             return res;
         } finally {
