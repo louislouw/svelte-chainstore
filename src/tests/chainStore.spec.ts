@@ -93,4 +93,19 @@ describe('chainStore', () => {
         expect(chainRef.write(1)).toEqual('1');
         expect(chainRef.read(0)).toEqual(2);
     })
+
+    it('emitting falsy boolean value should not skip read chain', () => {
+        let counter = 0;
+        const chainRef = chain(null, v => !v).chain(null, v => { ++counter; return v; }).chain(null, v => false);
+        expect(chainRef.read('badvalue')).toEqual(true);
+        expect(counter).toEqual(1);
+
+    })
+
+    it('emitting falsy number value should not skip read chain', () => {
+        let counter = 0;
+        const chainRef = chain(null, v => ++v).chain(null, v => { ++counter; return v; }).chain(null, v => 0);
+        expect(chainRef.read('badvalue')).toEqual(1);
+        expect(counter).toEqual(1);
+    })
 })
