@@ -7,7 +7,7 @@ export interface Chain<T> {
 
     sync(): Chain<T>;
 
-    store(initialValue: any): Writable<T>;
+    store(initialValue?: any): Writable<T>;
     store(store: Writable<T>): Writable<T>;
     store(store: Readable<T>): Readable<T>;
     store(store?: Writable<T> | Readable<T>, initialValue?: any): Writable<T>;
@@ -53,7 +53,7 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
     }
 
     function store(storeOrInitialValue?: Writable<T> | Readable<T> | any): Writable<T> {
-        if (attachOnce) throw new Error('attach can be called only once per chain');
+        if (attachOnce) throw new Error('store() can be called only once per chain');
         attachOnce = true;
 
         const isStore = isReadable(storeOrInitialValue) || isWritable(storeOrInitialValue);
@@ -78,6 +78,7 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
 
     function sync() {
         if (syncEnabled) throw new Error('sync can be called only once per chain');
+        if (attachOnce) throw new Error('sync() must be called before store()');
         syncEnabled = true;
         return linkReaderWriter(syncWriter);
     }
