@@ -72,6 +72,7 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
             store.set = (value: T) => write(value);
         } else {
             store.subscribe((value: T) => write(value));
+            //TODO: Is it bad that there is no unsubscribe?
         }
         return store;
     }
