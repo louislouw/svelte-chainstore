@@ -8,16 +8,37 @@ export const noopChainLink = (): ChainLink => {
 }
 
 export const jsonChainLink = (): ChainLink => {
+    function reader(value: string) {
+        if (value === undefined) return undefined;
+        return JSON.parse(value);
+    }
+
     return {
-        reader: JSON.parse,
+        reader,
         writer: JSON.stringify
     }
 }
 
 export const storageChainLink = (key: string, storage: Storage): ChainLink => {
+
+    function reader(): string {
+        return storage.getItem(key);
+    }
+
+    function writer(value: string): string {
+        if (value == null) {
+            storage.removeItem(key);
+            return value;
+        }
+
+        if (typeof (value) !== 'string') throw new Error('storageChainLink expects string value')
+        storage.setItem(key, value);
+        return value;
+    }
+
     return {
-        reader: () => storage.getItem(key),
-        writer: (value) => storage.setItem(key, value)
+        reader,
+        writer
     }
 }
 
@@ -52,6 +73,9 @@ export const whitelistChainLink = (properties: string[]): ChainLink => {
 export const defaultsChainLink = (defaultFields: any): ChainLink => {
 
     function reader(value: any): any {
+        if (value == null) return value;
+        if (typeof (value) !== 'object') throw new Error('Only object values may be used with defaultsChainLink');
+
         const keys = Object.keys(defaultFields);
         const cleanedValue = { ...value };
         keys.forEach((properyName) => {
@@ -63,6 +87,9 @@ export const defaultsChainLink = (defaultFields: any): ChainLink => {
     }
 
     function writer(value: any): any {
+        if (value == null) return value;
+        if (typeof (value) !== 'object') throw new Error('Only object values may be used with defaultsChainLink');
+
         const keys = Object.keys(defaultFields);
         const cleanedValue = { ...value };
         keys.forEach((properyName) => {
