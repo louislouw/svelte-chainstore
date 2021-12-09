@@ -34,6 +34,8 @@ Optionally reverse the chain when data is read from a storage location.
     npm install -D svelte-chainstore
 
 ## Quick Example
+[View REPL](https://svelte.dev/repl/9b09b48688d64d769ae85c35ffff67a8?version=3.44.2)
+
     <script>
 	import { chain } from 'svelte-chainstore';
 
