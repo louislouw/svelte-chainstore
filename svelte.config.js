@@ -15,7 +15,7 @@ const config = {
 		target: '#svelte',
 
 		package: {
-			exports: file => file === 'index.js'
+			exports: (file) => (file === 'index.js') || (file === 'index.ts')
 		},
 
 		vite: {
