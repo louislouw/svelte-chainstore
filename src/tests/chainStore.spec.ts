@@ -19,6 +19,26 @@ describe('chainStore', () => {
         expect(counter).toEqual(0);
     })
 
+    it('initalizes store with the default value', () => {
+        let storeVal;
+        const defVal = { a: 123 };
+        const chainRef = chain(null, null).sync().store(defVal);
+        chainRef.subscribe((v) => storeVal = v)
+        expect(storeVal).toEqual(defVal);
+    })
+
+    it('returns same value if writer list is empty', () => {
+        const chainRef = chain(null, null);
+        const res = chainRef.write(123);
+        expect(res).toEqual(123);
+    })
+
+    it('returns same value if reader list is empty', () => {
+        const chainRef = chain(null, null);
+        const res = chainRef.read(123);
+        expect(res).toEqual(123);
+    })
+
     it('can call sync() only once', () => {
         expect(() => chain(v => v).sync().sync()).toThrow();
     })
