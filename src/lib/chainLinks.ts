@@ -76,14 +76,7 @@ export const defaultsChainLink = (defaultFields: any): ChainLink => {
         if (value == null) return value;
         if (typeof (value) !== 'object') throw new Error('Only object values may be used with defaultsChainLink');
 
-        const keys = Object.keys(defaultFields);
-        const cleanedValue = { ...value };
-        keys.forEach((properyName) => {
-            if (!(properyName in cleanedValue)) {
-                cleanedValue[properyName] = defaultFields[properyName];
-            }
-        })
-        return cleanedValue;
+        return { ...defaultFields, ...value };
     }
 
     function writer(value: any): any {
