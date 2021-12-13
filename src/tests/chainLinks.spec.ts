@@ -1,4 +1,4 @@
-import { blacklistChainLink, defaultsChainLink, jsonChainLink, noopChainLink, storageChainLink, whitelistChainLink } from "$lib";
+import { blacklistChainLink, defaultsChainLink, jsonChainLink, noopChainLink, storageChainLink, whitelistChainLink, debugChainLink } from "$lib";
 
 describe('noopChainLink', () => {
     const link = noopChainLink();
@@ -246,3 +246,25 @@ describe('defaultsChainLink', () => {
         expect(() => link.reader('ABC')).toThrow();
     })
 })
+
+describe('debugChainLink', () => {
+    it('console.log with prefix and value on write', () => {
+        const mockFn = jest.fn();
+        console.log = mockFn;
+
+        const debug = debugChainLink('prefixStr');
+        debug.writer(123);
+        expect(mockFn.mock.calls[0][0]).toBe('prefixStr');
+        expect(mockFn.mock.calls[0][1]).toBe(123);
+    });
+
+    it('console.log with prefix and value on read', () => {
+        const mockFn = jest.fn();
+        console.log = mockFn;
+
+        const debug = debugChainLink('prefixStr');
+        debug.reader(123);
+        expect(mockFn.mock.calls[0][0]).toBe('prefixStr');
+        expect(mockFn.mock.calls[0][1]).toBe(123);
+    });
+});

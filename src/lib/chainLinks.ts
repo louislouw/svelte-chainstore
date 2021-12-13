@@ -98,3 +98,14 @@ export const defaultsChainLink = (defaultFields: any): ChainLink => {
         writer
     }
 }
+
+export const debugChainLink = (prefix: string): ChainLink => {
+    function logger(value: any): any {
+        console.log(prefix, value);
+        return value;
+    }
+    return {
+        reader: logger,
+        writer: logger
+    }
+}
