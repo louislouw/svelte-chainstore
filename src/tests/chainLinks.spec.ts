@@ -42,6 +42,14 @@ describe('jsonChainLink', () => {
         const res = link.reader(input);
         expect(res).toEqual(output);
     })
+
+    it('Reader does not allow non-string values', () => {
+        expect(() => link.reader(false)).toThrow();
+        expect(() => link.reader(true)).toThrow();
+        expect(() => link.reader(0)).toThrow();
+        expect(() => link.reader(1)).toThrow();
+        expect(() => link.reader({ a: 123 })).toThrow();
+    })
 })
 
 describe('storageChainLink', () => {

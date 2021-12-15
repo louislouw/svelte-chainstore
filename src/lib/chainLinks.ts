@@ -10,6 +10,7 @@ export const noopChainLink = (): ChainLink => {
 export const jsonChainLink = (): ChainLink => {
     function reader(value: string) {
         if (value === undefined) return undefined;
+        if (typeof (value) !== 'string') throw new Error('jsonChainLink reader expects string value')
         return JSON.parse(value);
     }
 
