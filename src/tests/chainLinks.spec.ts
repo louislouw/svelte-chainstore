@@ -1,4 +1,5 @@
 import { blacklistChainLink, defaultsChainLink, jsonChainLink, noopChainLink, storageChainLink, whitelistChainLink, debugChainLink, readDefaultChainLink } from "$lib";
+import { storageMock } from "./storageMock";
 
 describe('noopChainLink', () => {
     const link = noopChainLink();
@@ -55,62 +56,49 @@ describe('jsonChainLink', () => {
 
 describe('storageChainLink', () => {
 
-    let internalStore = { keyname: null };
-
-    const storageMock = (): Storage => {
-        return {
-            getItem: (key: string): string | null => internalStore[key],
-            setItem: (key: string, value: string): void => { internalStore[key] = value },
-            clear: () => { internalStore = { keyname: null } },
-            key: (index: number): string | null => Object.keys(internalStore)[index],
-            removeItem: (key: string) => { internalStore[key] = null },
-            length: Object.keys(internalStore).length
-        }
-    }
-
     const storageEmulator = storageMock();
     const link = storageChainLink('keyname', storageEmulator);
 
     it('Writing null value removes key', () => {
         storageEmulator.clear();
         expect(link.writer('zzz')).toEqual('zzz');
-        expect(internalStore.keyname).toEqual('zzz');
+        expect(storageEmulator.getItem('keyname')).toEqual('zzz');
 
         expect(link.writer(null)).toEqual(null);
-        expect(internalStore.keyname).toEqual(null);
+        expect(storageEmulator.getItem('keyname')).toEqual(null);
         expect(link.reader('abc')).toEqual('abc'); //Should return default
     })
 
     it('Writing undefined value removes key', () => {
         storageEmulator.clear();
         expect(link.writer('zzz')).toEqual('zzz');
-        expect(internalStore.keyname).toEqual('zzz');
+        expect(storageEmulator.getItem('keyname')).toEqual('zzz');
 
         expect(link.writer(undefined)).toEqual(undefined);
-        expect(internalStore.keyname).toEqual(null);
+        expect(storageEmulator.getItem('keyname')).toEqual(null);
         expect(link.reader('xyz')).toEqual('xyz'); //Should return default
     })
 
     it('Writer writes value into storage', () => {
         storageEmulator.clear();
-        expect(internalStore.keyname).not.toEqual('abc');
+        expect(storageEmulator.getItem('keyname')).not.toEqual('abc');
         expect(link.writer('abc')).toEqual('abc');
-        expect(internalStore.keyname).toEqual('abc');
+        expect(storageEmulator.getItem('keyname')).toEqual('abc');
     })
 
     it('Reader reads value from storage', () => {
         storageEmulator.clear();
-        expect(internalStore.keyname).not.toEqual('ReadResult');
+        expect(storageEmulator.getItem('keyname')).not.toEqual('ReadResult');
         expect(link.reader(null)).not.toEqual('ReadResult');
 
         expect(link.writer('ReadResult')).toEqual('ReadResult');
-        expect(internalStore.keyname).toEqual('ReadResult');
+        expect(storageEmulator.getItem('keyname')).toEqual('ReadResult');
         expect(link.reader(null)).toEqual('ReadResult');
     })
 
     it('Reader returns default value if empty', () => {
         storageEmulator.clear();
-        expect(internalStore.keyname).toEqual(null);
+        expect(storageEmulator.getItem('keyname')).toEqual(null);
         expect(link.reader('default')).toEqual('default');
     })
 
