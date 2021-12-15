@@ -1,4 +1,4 @@
-import { jsonChainLink, storageChainLink } from "./chainLinks"
+import { jsonChainLink, readDefaultChainLink, storageChainLink } from "./chainLinks"
 import { chain } from "./chainStore"
 
-export const persistStore = (key: string, defaultValue: any = null, storage: Storage = window.localStorage) => chain(jsonChainLink()).chain(storageChainLink(key, storage)).store(JSON.stringify(defaultValue));
+export const persistStore = (key: string, initialValue: any = null, storage: Storage = window.localStorage) => chain(readDefaultChainLink(initialValue)).chain(jsonChainLink()).chain(storageChainLink(key, storage)).store();
