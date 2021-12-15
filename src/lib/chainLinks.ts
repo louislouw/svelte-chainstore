@@ -21,8 +21,9 @@ export const jsonChainLink = (): ChainLink => {
 
 export const storageChainLink = (key: string, storage: Storage): ChainLink => {
 
-    function reader(): string {
-        return storage.getItem(key);
+    function reader(value: string = null): string {
+        const readValue = storage.getItem(key);
+        return readValue == null ? value : readValue;
     }
 
     function writer(value: string): string {

@@ -69,7 +69,7 @@ describe('storageChainLink', () => {
 
         expect(link.writer(null)).toEqual(null);
         expect(internalStore.keyname).toEqual(null);
-        expect(link.reader()).toEqual(null);
+        expect(link.reader('abc')).toEqual('abc'); //Should return default
     })
 
     it('Writing undefined value removes key', () => {
@@ -79,7 +79,7 @@ describe('storageChainLink', () => {
 
         expect(link.writer(undefined)).toEqual(undefined);
         expect(internalStore.keyname).toEqual(null);
-        expect(link.reader()).toEqual(null);
+        expect(link.reader('xyz')).toEqual('xyz'); //Should return default
     })
 
     it('Writer writes value into storage', () => {
@@ -89,14 +89,20 @@ describe('storageChainLink', () => {
         expect(internalStore.keyname).toEqual('abc');
     })
 
-    it('Reader readers value from storage', () => {
+    it('Reader reads value from storage', () => {
         storageEmulator.clear();
         expect(internalStore.keyname).not.toEqual('ReadResult');
-        expect(link.reader()).not.toEqual('ReadResult');
+        expect(link.reader(null)).not.toEqual('ReadResult');
 
         expect(link.writer('ReadResult')).toEqual('ReadResult');
         expect(internalStore.keyname).toEqual('ReadResult');
-        expect(link.reader()).toEqual('ReadResult');
+        expect(link.reader(null)).toEqual('ReadResult');
+    })
+
+    it('Reader returns default value if empty', () => {
+        storageEmulator.clear();
+        expect(internalStore.keyname).toEqual(null);
+        expect(link.reader('default')).toEqual('default');
     })
 
     it('Writer does not allow non-string values', () => {
