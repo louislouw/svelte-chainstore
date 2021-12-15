@@ -101,6 +101,22 @@ export const defaultsChainLink = (defaultFields: any): ChainLink => {
     }
 }
 
+export const readDefaultChainLink = (defaultValue: any): ChainLink => {
+
+    function reader(value: any): any {
+        return value ? value : defaultValue;
+    }
+
+    function writer(value: any): any {
+        return value;
+    }
+
+    return {
+        reader,
+        writer
+    }
+}
+
 export const debugChainLink = (prefix: string): ChainLink => {
     function logger(value: any): any {
         console.log(prefix, value);

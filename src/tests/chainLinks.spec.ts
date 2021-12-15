@@ -1,4 +1,4 @@
-import { blacklistChainLink, defaultsChainLink, jsonChainLink, noopChainLink, storageChainLink, whitelistChainLink, debugChainLink } from "$lib";
+import { blacklistChainLink, defaultsChainLink, jsonChainLink, noopChainLink, storageChainLink, whitelistChainLink, debugChainLink, readDefaultChainLink } from "$lib";
 
 describe('noopChainLink', () => {
     const link = noopChainLink();
@@ -281,5 +281,25 @@ describe('debugChainLink', () => {
         debug.reader(123);
         expect(mockFn.mock.calls[0][0]).toBe('prefixStr');
         expect(mockFn.mock.calls[0][1]).toBe(123);
+    });
+});
+
+describe('readDefaultChainLink', () => {
+    it('returns default if value is null', () => {
+        const link = readDefaultChainLink(123);
+        expect(link.reader(null)).toEqual(123);
+    });
+
+    it('returns default if value is undefined', () => {
+        const link = readDefaultChainLink('abc');
+        expect(link.reader(undefined)).toEqual('abc');
+    });
+
+    it('returns value if value != null', () => {
+        const link = readDefaultChainLink('defaultValue');
+        expect(link.reader(true)).toEqual(true);
+        expect(link.reader(1)).toEqual(1);
+        expect(link.reader('abc')).toEqual('abc');
+        expect(link.reader({ a: 123 })).toEqual({ a: 123 });
     });
 });
