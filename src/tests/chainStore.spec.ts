@@ -12,11 +12,17 @@ describe('chainStore', () => {
         expect(chainRef.read(0)).toEqual((2 + 2) * 3);
     })
 
-    it('read returns default if store returns null', () => {
-        let counter = 0;
-        const chainRef = chain(null, v => { ++counter; return v; }).chain(null, (v) => v * 3).chain(null, v => v + 2).chain(null, v => null);
-        expect(chainRef.read(99)).toEqual(99); //Note: This skips entire read chain
-        expect(counter).toEqual(0);
+    it('default value passed to read chain by last read function', () => {
+        let counter = 0; const startValue = 2;
+        const chainRef = chain(null, v => { ++counter; return v; }).chain(null, (v) => v * 3).chain(null, v => v + 2).chain(null, v => v);
+
+        expect(chainRef.read(startValue)).toEqual((startValue + 2) * 3);
+        expect(counter).toEqual(1);
+    })
+
+    it('empty readers queue should return default value', () => {
+        const chainRef = chain(null);
+        expect(chainRef.read(9)).toEqual(9);
     })
 
     it('initalizes store with the default value', () => {
@@ -127,5 +133,69 @@ describe('chainStore', () => {
         const chainRef = chain(null, v => ++v).chain(null, v => { ++counter; return v; }).chain(null, v => 0);
         expect(chainRef.read('badvalue')).toEqual(1);
         expect(counter).toEqual(1);
+    })
+
+    it('does not overwrite store with initial value if readers are empty', () => {
+        let storeVal = 0;
+        const store = writable(1);
+        store.subscribe(v => storeVal = v);
+        expect(storeVal).toEqual(1);
+        chain(v => v).store(store);
+        expect(storeVal).toEqual(1);
+    })
+
+    it('does not overwrite store with initial value if store is only readable, but execute read queue once', () => {
+        let storeVal = 0;
+        let counter = 0;
+        const store = readable(99);
+        store.subscribe(v => storeVal = v);
+        expect(storeVal).toEqual(99);
+        chain(v => v, v => ++counter).store(store);
+        expect(storeVal).toEqual(99);
+        expect(counter).toEqual(1);
+    })
+
+    it('attached store reads once, writes zero times on initialize', () => {
+        let storeVal = 0;
+        let readCounter = 0;
+        let writeCounter = 0;
+        let storeCounter = 0;
+
+        const store = writable(-1);
+        store.subscribe(v => { storeVal = v; ++storeCounter; })
+
+        chain(v => { ++writeCounter; return --v }, v => { ++readCounter; return ++v }).store(store, 99);
+        expect(storeVal).toEqual(100);
+        expect(storeCounter).toEqual(2);
+        expect(readCounter).toEqual(1);
+        expect(writeCounter).toEqual(0);
+
+        store.set(88);
+        expect(storeVal).toEqual(88);
+        expect(storeCounter).toEqual(3);
+        expect(readCounter).toEqual(1);
+        expect(writeCounter).toEqual(1);
+    })
+
+    it('attached store reads once, writes zero times on initialize (with sync)', () => {
+        let storeVal = 0;
+        let readCounter = 0;
+        let writeCounter = 0;
+        let storeCounter = 0;
+
+        const store = writable(-1);
+        store.subscribe(v => { storeVal = v; ++storeCounter; })
+
+        chain(v => { ++writeCounter; return --v }, v => { ++readCounter; return ++v }).sync().store(store, 99);
+        expect(storeVal).toEqual(100);
+        expect(storeCounter).toEqual(2);
+        expect(readCounter).toEqual(1);
+        expect(writeCounter).toEqual(0);
+
+        store.set(88);
+        expect(storeVal).toEqual(87);
+        expect(storeCounter).toEqual(3);
+        expect(readCounter).toEqual(1);
+        expect(writeCounter).toEqual(1);
     })
 })

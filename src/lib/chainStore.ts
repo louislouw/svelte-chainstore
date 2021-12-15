@@ -8,11 +8,11 @@ export interface Chain<T> {
     sync(): Chain<T>;
 
     store(initialValue?: any): Writable<T>;
-    store(store: Writable<T>): Writable<T>;
+    store(store: Writable<T>, initialValue?: any): Writable<T>;
     store(store: Readable<T>): Readable<T>;
     store(store?: Writable<T> | Readable<T>, initialValue?: any): Writable<T>;
 
-    read(defaultValue: T): T;
+    read(defaultValue: any): T;
     write(value: T): any;
 }
 
@@ -26,19 +26,18 @@ export function chain<T>(writer?: CallableFunction, reader?: CallableFunction): 
 export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reader?: CallableFunction): Chain<T> {
     let readers = [];
     const writers = [];
-    let emitter: CallableFunction;
 
+    let skipFirstWrite = false;
     let attachOnce = false;
     let syncEnabled = false;
     let capturedSet: (this: void, value: T) => void;
 
-    function read(defaultValue: T): T {
-        if (!emitter) return defaultValue;
-        const emittedValue = emitter();
-        return emittedValue == null ? defaultValue : readers.reduce((acc, fn: any) => fn(acc), emittedValue);
+    function read(defaultValue: any): T {
+        return readers.reduce((acc, fn: any) => fn(acc), defaultValue);
     }
 
     function write(value: T) {
+        if (skipFirstWrite) { skipFirstWrite = false; return; }
         return writers.reduce((acc, fn: any) => fn(acc), value)
     }
 
@@ -52,28 +51,34 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
         return isReadable(store) && ('set' in store) && ('update' in store);
     }
 
-    function store(storeOrInitialValue?: Writable<T> | Readable<T> | any): Writable<T> {
+    function store(storeOrInitialValue?: Writable<T> | Readable<T> | any, initialValue?: any): Writable<T> {
         if (attachOnce) throw new Error('store() can be called only once per chain');
         attachOnce = true;
 
-        const isStore = isReadable(storeOrInitialValue) || isWritable(storeOrInitialValue);
-        let store = isStore ? storeOrInitialValue : null;
-        let initialValue = !isStore ? storeOrInitialValue : null;
+        const attachStore = isReadable(storeOrInitialValue);
 
-        if (!store) {
-            const emittedValue = read(initialValue);
-            store = writable(emittedValue);
+        initialValue = !attachStore ? storeOrInitialValue : initialValue;
+        const readValue = read(initialValue);
+
+        let store = attachStore ? storeOrInitialValue : writable(readValue);
+        const isWritableStore = isWritable(store);
+
+        //Overwrite initial value for existing writable store (if we use readers)
+        if (attachStore && isWritableStore && readers.length) {
+            store.set(readValue)
         }
 
         if (syncEnabled) {
-            if (!isWritable(store)) throw new Error('sync can only be used with Writable store');
+            if (!isWritableStore) throw new Error('sync can only be used with Writable store');
             //Capture set so we can first apply write chain
             capturedSet = store.set;
             store.set = (value: T) => write(value);
         } else {
+            skipFirstWrite = true;
             store.subscribe((value: T) => write(value));
             //TODO: Is it bad that there is no unsubscribe?
         }
+
         return store;
     }
 
@@ -105,9 +110,8 @@ export function chain<T>(writerOrChainLink?: CallableFunction | ChainLink, reade
         if (writer) writers.push(writer);
 
         if (reader) {
-            //Emitter is the last reader added & readers are also added in reverse
-            if (emitter) readers = [emitter, ...readers];
-            emitter = reader;
+            //Store readers in reverse order
+            readers = [reader, ...readers];
         }
 
         return {
