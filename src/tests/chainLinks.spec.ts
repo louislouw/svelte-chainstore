@@ -32,6 +32,7 @@ describe('jsonChainLink', () => {
     it.each`
     input           | output
     ${undefined}    | ${undefined}
+    ${null}         | ${null}
     ${'null'}       | ${null}         
     ${'0'}          | ${0}            
     ${'true'}       | ${true}         
