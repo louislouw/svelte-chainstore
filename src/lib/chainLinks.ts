@@ -1,12 +1,5 @@
 import type { ChainLink } from "./chainStore"
 
-export const noopChainLink = (): ChainLink => {
-    return {
-        reader: (v) => v,
-        writer: (v) => v
-    }
-}
-
 export const jsonChainLink = (): ChainLink => {
     function reader(value: string) {
         if (value == null) return value;
@@ -114,6 +107,13 @@ export const readDefaultChainLink = (defaultValue: any): ChainLink => {
     return {
         reader,
         writer
+    }
+}
+
+export const noopChainLink = (): ChainLink => {
+    return {
+        reader: (v) => v,
+        writer: (v) => v
     }
 }
 
