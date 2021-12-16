@@ -1,5 +1,6 @@
 import { persistStore } from "$lib/persistStore";
 import { storageMock } from "./storageMock";
+import { get } from 'svelte/store';
 
 describe('persistStore', () => {
 
@@ -11,9 +12,7 @@ describe('persistStore', () => {
         expect(storageEmulator.getItem(key)).toEqual(null);
 
         const store = persistStore(key, 123, storageEmulator);
-        let storeVal;
-        store.subscribe(v => storeVal = v);
-        expect(storeVal).toEqual(123);
+        expect(get(store)).toEqual(123);
         expect(storageEmulator.getItem(key)).toEqual(null);
     })
 
@@ -23,18 +22,14 @@ describe('persistStore', () => {
         expect(storageEmulator.getItem(key)).toEqual(null);
 
         const store = persistStore(key, { a: 123 }, storageEmulator);
-        let storeVal;
-        store.subscribe(v => storeVal = v);
-        expect(storeVal).toEqual({ a: 123 });
+        expect(get(store)).toEqual({ a: 123 });
         expect(storageEmulator.getItem(key)).toEqual(null);
 
         store.set('abc');
-        expect(storeVal).toEqual('abc');
+        expect(get(store)).toEqual('abc');
         expect(storageEmulator.getItem(key)).toEqual(JSON.stringify('abc'));
 
-        let storeVal2;
         const store2 = persistStore(key, { a: 123 }, storageEmulator);
-        store2.subscribe(v => storeVal2 = v);
-        expect(storeVal2).toEqual('abc');
+        expect(get(store2)).toEqual('abc');
     })
 })
